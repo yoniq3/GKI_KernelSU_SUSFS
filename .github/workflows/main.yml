@@ -310,7 +310,7 @@ jobs:
           KOWSU_COMMIT="$(resolve_sha https://github.com/KOWX712/KernelSU.git refs/heads/master)"
           emit kowsu_commit "$KOWSU_COMMIT"
           if [ "${{ inputs.use_susfs }}" = "true" ]; then
-            NEXT_COMMIT="$(resolve_sha https://github.com/pershoot/KernelSU-Next.git refs/heads/dev-susfs)"
+            NEXT_COMMIT="1a879d6a866f80b1fa1c1009a2ffa747873cbb5e"
           else
             NEXT_COMMIT="$(resolve_sha https://github.com/KernelSU-Next/KernelSU-Next.git refs/heads/dev)"
           fi
@@ -1251,22 +1251,13 @@ jobs:
         set -euo pipefail
 
         KSU_REPO="https://github.com/pershoot/KernelSU-Next.git"
-        KSU_INPUT="dev-susfs"
+        KSU_INPUT="1a879d6a866f80b1fa1c1009a2ffa747873cbb5e"
 
-        # Try as branch first, fall back to commit
-        if git ls-remote --heads "$KSU_REPO" "$KSU_INPUT" | grep -q .; then
-          echo "Cloning KernelSU-Next from branch: $KSU_INPUT"
-          git clone --branch "$KSU_INPUT" "$KSU_REPO" /tmp/kernelsu-next
-          cd /tmp/kernelsu-next
-          KSUN_COMMIT=$(git rev-parse HEAD)
-        else
-          echo "Cloning KernelSU-Next from dev-susfs branch, then checking out commit: $KSU_INPUT"
-          git clone --branch dev-susfs "$KSU_REPO" /tmp/kernelsu-next
-          cd /tmp/kernelsu-next
-          git fetch --depth=50 origin "$KSU_INPUT"
-          git checkout "$KSU_INPUT"
-          KSUN_COMMIT="$KSU_INPUT"
-        fi
+        echo "Cloning KernelSU-Next at exact commit: $KSU_INPUT"
+        git clone "$KSU_REPO" /tmp/kernelsu-next
+        cd /tmp/kernelsu-next
+        git checkout "$KSU_INPUT"
+        KSUN_COMMIT="$(git rev-parse HEAD)"
 
         # The manager is built on the OFFICIAL KernelSU-Next repo
         # (pershoot's workflows are all disabled). Find the official dev
@@ -1748,4 +1739,7 @@ jobs:
             --prerelease \
             --title "Nightly (${{ github.ref_name }} $(date -u +%Y-%m-%d))" \
             --notes-file nightly/release_body.md
+
+
+
 
